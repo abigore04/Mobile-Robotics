@@ -1,4 +1,4 @@
-# Line Following and Path Visualization using LEGO EV3 Mindstorms
+# Line Following and Obstacle Avoidance using LEGO EV3 Mindstorms
 
 **Course:** Mobile Robotics  
 **Student:** Farid Ibadov  
