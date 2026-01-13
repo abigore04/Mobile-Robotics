@@ -1,12 +1,12 @@
 # **Tic-Tac-Toe Using Yahboom Transbot**  
 
-**Course:** Mobile Robotics  
-**Students:** Farid Ibadov & Said Ahadov.
-**Instructor:** Alexzander Leonard Farral.
-**University:** ADA University  
-**Date:** January 2026  
-**Platform:** Raspberry Pi 4 + Yahboom Transbot hardware, ROS Melodic
-**Language:** Python (rospy, OpenCV)
+- **Course:** Mobile Robotics  
+- **Students:** Farid Ibadov & Said Ahadov.
+- **Instructor:** Alexzander Leonard Farral.
+- **University:** ADA University  
+- **Date:** January 2026  
+- **Platform:** Raspberry Pi 4 + Yahboom Transbot hardware, ROS Melodic
+- **Language:** Python (rospy, OpenCV)
 
 ---
 # Overall Structure
