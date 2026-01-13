@@ -68,6 +68,7 @@
 	- [Discussion](#discussion)
 	- [Conclusion](#conclusion)
 - [8. References](#8-references)
+- [9. YouTube Video Links](#9-YouTube-Video-Links) 
 
 ---
 
@@ -95,11 +96,11 @@ The camera is a third-party device, using which the algorithm keeps itself updat
 
 Another difficulty faced was the method of implementing the **grabbing and releasing**. We did not overcomplicate things and decided to use the physical properties of the magnets. As a result, we have purchased a bunch of neodymium magnets - small ones having a diameter of 4 mm and height of 3 mm to fit perfectly into the holes of figures which were designed in Autodesk Fusion (3D modeling software) and large magnets with 10 mm in diameter and 2 mm in thickness to place them under the cardboard sheets within the playground board cells. One of the large magnets was attached to the gripper itself, keeping a constant servo angle to hold the magnet firmly (although the magnet stuck to one lip of the gripper to avoid falling during the calibration process). An important part here was to make sure that the *polarities of the magnets do not conflict* so the gripper's magnet could easily grab the figure from the storage board and place it into the cell of the playground board where the figure snaps to the cardboard surface, since the small magnets embedded in figures are exposed more to the playground magnets than to the grippers magnet. With this neat design, grab and release functionality was implemented almost perfectly, though sometimes, especially with O figures, the borders of the *storage board snap the figure off the gripper* - the probability of this happening was reduced to a minimum with correct gripper magnet placement.
 
-![[Pasted image 20260104040224.png]]
+![Magnets Under the Figures](Pasted%20image%2020260104040224.png)
 
 Talking about the **calibration**, the most suitable way for us to calibrate the robot with respect to the boards was to first place each board perfectly parallel to the edge of the table (or any straight-edge object, like a regular box). The correct placement of boards against each other was established using the regular *ruler* placed just between them, which has a **2 cm** thickness. The base calibration was established by placing the tool with an inductive coil found in the lab, which has around **4 cm** of thickness. Why 4 cm? This is the most optimal distance for the end-effector to reach the closest cell without colliding with the border of the board and the farthest - without exerting too much pressure on the base. Finally, to calibrate the base of the robotic arm with the center of the playground, before the game, we launch a short script to stick out the arm forward and down to **{"s7": 123, "s8": 180, "s9": 107}** so that the lips of the gripper align with the borders of the center cell.
 
-![[Pasted image 20260104035636.png]]
+![Calibration Process](Pasted%20image%2020260104035636.png)
 
 Another great issue encountered was the so-called **servo conflict**. Sometimes servos appeared to override each other when one servo suddenly locks, or another starts to move at increased speed. This could be avoided using various techniques, like calculating the angle difference between the starting angle of the servo and the target angle to rotate to for each servo and set similar rate of turn for all of them to achieve synchronous movement; however, we decided to keep everything simple and make some order of actuation, for instance, when moving from home position to grab or release position, the robot first turns with *pan* servo, then with *s8* (forearm) and finally with *s7* (shoulder). This helped to avoid servo conflict and the possibility of the end-effector colliding with a surface the robot is standing on or with the borders of the boards.
 
@@ -111,15 +112,15 @@ All the changes in the robot's physical configuration made along the path of the
 
 #### **Stage 1** (Factory configuration, Jetson Nano, 3-DOF arm):
 
-![[aaaa.jpg]]
+![Stage 1 Appearance](aaaa.jpg)
 
 #### **Stage 2** (Raspberry Pi, camera placed on 3-DOF arm):
 
-![[aaa.jpg]]
+![Stage 2 Appearance](aaa.jpg)
 
 #### **Stage 3** (Raspberry Pi with active cooling, camera set aside, extended 4-DOF mounted on the top of the robot):
 
-![[Pasted image 20260104035341.png]]
+![Stage 3 Appearance](Pasted%20image%2020260104035341.png)
 
 ---
 
@@ -130,7 +131,7 @@ Complete system architecture and how various subsystems communicate with each ot
 
 Basically, the project itself is a **modular system** with the main configuration consisting of 4-DOF robotic arm manipulator mounted on the top of the mobile track-based platform capable of performing repetitive tasks until the goal is reached. Simple system pipeline can be visualized like this:
 
-![[Pasted image 20260107004257.png]]
+![Simple System Pipeline](Pasted%20image%2020260107004257.png)
 
 The main idea is to make the system **structural** by dividing responsibilities - when each component performs separately and does one job. Therefore, the **ROS** system was used to act as the wiring, making sure that a firm communication is being constantly established. Additionally, this kind of system setup makes the process of testing, debugging more convenient, while also being quite flexible, providing the opportunities to expand the project further.
 
@@ -142,7 +143,7 @@ System components can be understood as building blocks, each playing a significa
 #### Double-board setup
 The most practical, yet efficient way of realizing the convenience of grabbing and releasing mechanism was to ensure **staticity**. We achieved this by using two separate 3x3-matrix boards - one playing a role of a *storage*, another - *playground*. By keeping all the figures in the storage board in pre-defined order and hardcoding this order, the system can reach each figure with high accuracy, making sure that correct figure has been picked up. Although this could be done using vision, our setup unloads the system dramatically.
 
-![[Pasted image 20260107012251.png]]
+![Storage and Playground Boards Setup](Pasted%20image%2020260107012251.png)
 
 #### Manipulation Pattern
 Manipulation pattern has been realized quite simply as repeatable **" HOME -> target -> HOME -> target -> HOME "** pattern. Robotic arm has a particular predefined home position with preset s8 and s7 servo angles (for pan the home is defined separately and s9 stays fixed to hold the magnet) to which it tends to return after each maneuver. 
@@ -202,7 +203,7 @@ So the system in its final shape can be conceived of being constructed of the fo
 ### 1.4.1 Board State
 Board state **topic** `/ttt/board_matrix` is the core topic in our system. It has **type** of `std_msgs/String` with a **format** of rows connected by slash sign, like `..x/OX./...` which corresponds to the following board state: 
 
-![[Pasted image 20260107025617.png]]
+![Playground Board with Figures All Around](Pasted%20image%2020260107025617.png)
 
 ### 1.4.2 Motion Service
 Motion is **service-based** (executed through services) so each call returns *success*/*failure* in an explicit way. Services:
@@ -216,11 +217,11 @@ Motion is **service-based** (executed through services) so each call returns *su
 - Below, role in system, subscription, publication, service providing, service calling for each node and one script is provided. 
 - `---` means "**no**" (ex.: `ttt_arm_executor.py` node has no subscription)
 
-![[Pasted image 20260107032410.png]]
+![Nodes And Scripts Communication](Pasted%20image%2020260107032410.png)
 
 - General flow for *terminal-driven game loop* can be pictured using **State Diagram**:
 
-![[Pasted image 20260107041454.png]]
+![System's State Diagram](Pasted%20image%2020260107041454.png)
 
 
 ---
@@ -242,7 +243,8 @@ After final modernization, our robotic arm gained additional Degree of Freedom i
 - `pan` - base joint, rotates in horizontal axis.
 With this setup, arm can address objects located on its left and right without turning the base of the robot. This modernization enabled us to achieve acceptable level of accuracy and reduce power consumption of the system.
 
-![[Pasted image 20260107054247.png]]
+![Robotic Arm - Closer Look](Pasted%20image%2020260107054247.png)
+
 ## 2.3 Arm Extension Modules
 
 Right after mounting the robotic arm to its new position, another issue appeared - insufficient length of the arm to reach the cells. So, we have designed and 3D-printed special extensions that:
@@ -252,18 +254,20 @@ With correctly utilized manipulation technique (retracting arm before each turn 
 
 ## 2.4 End-Effector
 
-The most practical way to realize the pickup/release mechanism was to statically attach one neodymium magnet in gripper, so it can attract the figures with embedded tiny magnets during pickup operation and release the figures, snapping them off, by bringing the bottoms of the figures close enough to the cells of playground board containing sheets of cardboard with additional magnets lying under each.  
-![[Pasted image 20260107054035.png]]
+The most practical way to realize the pickup/release mechanism was to statically attach one neodymium magnet in gripper, so it can attract the figures with embedded tiny magnets during pickup operation and release the figures, snapping them off, by bringing the bottoms of the figures close enough to the cells of playground board containing sheets of cardboard with additional magnets lying under each.
+
+![End Effector - Closer Look](Pasted%20image%2020260107054035.png)
 
 ## 2.5 Boards and Physical Layout
 
 - **Storage board** - 140x140mm board having thickened borders of 11.75mm with cells 31x31mm to hold the figures firmly which have 30mm of wideness. Height of board is 5mm to make the pickup easier.
 
-![[Pasted image 20260107054051.png]]
+![Pick Up Mechanism](Pasted%20image%2020260107054051.png)
 
 - **Playground board** - 140x140mm board having thickened borders of 5mm with cells 40x40mm to increase the chances of releasing accurately. Height of board is 10mm to make the release easier - guide figures while they're dropping. In each cell 40x40mm cardboard sheet is laying, having magnet under each
 
-![[Pasted image 20260107053049.png]]
+![Boards And Figures 3D View](Pasted%20image%2020260107053049.png)
+
 ## 2.6 Computing and Hardware Reliability
 
 The onboard computer we have in our robot is Raspberry Pi 4. It is a good tradeoff of reliability and simplicity. Although continuous vision and ROS processing cause significant overloading and heating, after installing active cooling components the problem was mitigated just enough so that the system works almost flawlessly.
@@ -291,7 +295,8 @@ As we have mentioned earlier, when we are not sure whether the robot is calibrat
 First of all we have to ensure that the **storage and playground** board are located correctly with respect to each other. We do this by:
 1. Positioning their edges parallel to some object to make sure that the **boards are parallel** as well. It can be some sort object with smooth and straight surface to lean on. We kept everything simple and positioned them with respect to the *edge of the table*. By doing so we can visually see that the boards are parallel to each other, which is our goal. 
 2. Setting some constant **distance between the outer edges** of the boards. In our case we use regular *ruler* that sticked between those boards, setting gap of **25mm**.
-![[Pasted image 20260107085446.png]]
+
+![Boards Calibration](Pasted%20image%2020260107085446.png)
 
 - To keep calibrated boards stable and rid ourselves from constant recalibration, we sticked the boards to the table using two-sided tape.
 
@@ -300,7 +305,7 @@ First of all we have to ensure that the **storage and playground** board are loc
 The next what we would like to calibrate is the base of our robot. Unfortunately or fortunately, due to its mobile nature, we cannot leash it to stay fixed in one place. Therefore it is helpful to frequently check that the base is calibrated.
 Here, as well as in the case with boards, we have used the object that we found in the lab - *power inductor* (aka choke). Having a thickness of near **33mm**. we found it handy, since the distance between the robot and board allows to reach each cell without any issues. By putting this tool between the "bumper" or base and the edge of the playground board, we can correctly align the robot perpendicular to the edge of the board and roughly align the center cell of with the base of the robotic arm. 
 
-![[Pasted image 20260107090746.png]]
+![Base Initial Calibration](Pasted%20image%2020260107090746.png)
 
 However, the word "roughly" did not satisfy us, therefore we wrote some script and named it `foo1.py` to resolve this imprecision and make everything as perfect as possible.
 
@@ -308,7 +313,7 @@ However, the word "roughly" did not satisfy us, therefore we wrote some script a
 
 Below, the full script `foo1.py` used for the arm base calibration is given and explained. In a nutshell, we will move our robotic arm to some pose with its gripper open exactly to the width of the playground board's cell, and then manually slide the robot left or right to align the lips of the gripper with the side edges of the center cell in the playground board.
 
-![[Pasted image 20260107092701.png]]
+![Base Final Calibration](Pasted%20image%2020260107092701.png)
 
 ```python title:"foo1.py"
 #!/usr/bin/env python3
@@ -1879,4 +1884,7 @@ We built, destroyed and rebuilt. What first appeared as a just a silly fun proje
 
 ---
 
-# 9. GitHub and YouTube 
+# 9. YouTube Video Links 
+
+Interactive - https://youtu.be/d-os2w5GfLE
+Autonomous - https://youtu.be/OsBG_wvHNTU
